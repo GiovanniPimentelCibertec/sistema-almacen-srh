@@ -1,0 +1,79 @@
+/* Estilos del sistema de almacén SRH */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #f2f5f9; color: #1f2937; font-size: 14px; }
+a { color: #1f4e79; text-decoration: none; }
+
+/* Menú */
+.menu { display: flex; align-items: center; gap: 24px; background: #1f4e79; color: #fff; padding: 0 20px; height: 56px; }
+.menu .marca { color: #fff; font-weight: bold; font-size: 17px; }
+.menu nav { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.menu nav a { color: #dbe7f3; padding: 6px 10px; border-radius: 4px; }
+.menu nav a:hover { background: #2e6aa3; color: #fff; }
+.menu nav a.pronto { opacity: .55; }
+.menu .usuario { display: flex; align-items: center; gap: 10px; }
+.menu .rol { background: #f0b429; color: #1f2937; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
+.menu form { margin: 0; }
+.btn-salir { background: transparent; border: 1px solid #9fc0e0; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+/* Contenido */
+.contenido { max-width: 1150px; margin: 24px auto; padding: 0 20px; }
+.titulo { display: flex; justify-content: space-between; align-items: center; }
+h2 { margin: 6px 0 16px; color: #1f4e79; }
+h3 { margin: 24px 0 8px; }
+.nota { color: #6b7280; font-size: 12px; }
+
+/* Tablas */
+table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+table.angosta { max-width: 520px; }
+th { background: #1f4e79; color: #fff; text-align: left; padding: 9px 10px; font-weight: 600; }
+td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }
+tr:hover td { background: #f7fafc; }
+tr.inactivo td { color: #9ca3af; }
+td.num { text-align: right; }
+.rojo { color: #c0392b; font-weight: bold; }
+.acciones { display: flex; gap: 6px; }
+.acciones form { margin: 0; }
+
+/* Botones */
+.btn { display: inline-block; background: #1f4e79; color: #fff; border: 0; padding: 9px 16px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+.btn.gris { background: #9ca3af; }
+.btn-sm { display: inline-block; background: #2e6aa3; color: #fff; border: 0; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.btn-sm.gris { background: #6b7280; }
+
+/* Estados y etiquetas */
+.estado { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.estado.on { background: #d1fae5; color: #065f46; }
+.estado.off { background: #fee2e2; color: #991b1b; }
+.etiqueta { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+.etiqueta.ENTRADA { background: #d1fae5; color: #065f46; }
+.etiqueta.SALIDA { background: #dbeafe; color: #1e40af; }
+.etiqueta.AJUSTE { background: #fef3c7; color: #92400e; }
+
+/* Alertas */
+.alerta { padding: 10px 14px; border-radius: 5px; margin-bottom: 14px; }
+.alerta.ok { background: #d1fae5; color: #065f46; }
+.alerta.error { background: #fee2e2; color: #991b1b; }
+
+/* Tarjetas del panel */
+.tarjetas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.tarjeta { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); color: #6b7280; }
+.tarjeta span { display: block; font-size: 28px; font-weight: bold; color: #1f4e79; }
+.tarjeta.alerta-t span { color: #c0392b; }
+
+/* Formularios */
+.formulario { background: #fff; padding: 22px; border-radius: 8px; max-width: 520px; box-shadow: 0 1px 3px rgba(0,0,0,.08); display: grid; gap: 14px; }
+.formulario.dos { max-width: 760px; grid-template-columns: 1fr 1fr; }
+.formulario label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
+.formulario em { font-weight: normal; color: #6b7280; font-size: 12px; }
+input, select { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 14px; font-family: inherit; }
+input:disabled { background: #f3f4f6; }
+.error { color: #c0392b; font-weight: normal; }
+.botones { display: flex; gap: 10px; grid-column: 1 / -1; }
+
+/* Login */
+.fondo-login { background: linear-gradient(135deg, #1f4e79, #2e6aa3); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.caja-login { background: #fff; padding: 34px; border-radius: 10px; width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.caja-login h1 { margin: 0; color: #1f4e79; text-align: center; }
+.caja-login .sub { text-align: center; color: #6b7280; margin: 6px 0 20px; }
+.caja-login form { display: grid; gap: 14px; }
+.caja-login label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }

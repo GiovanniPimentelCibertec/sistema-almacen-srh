@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' | Almacén SRH'">Almacén SRH</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+
+<!-- Menú superior: cada rol ve solo sus opciones -->
+<header th:fragment="menu" class="menu">
+    <a th:href="@{/}" class="marca">📦 Almacén SRH</a>
+    <nav>
+        <a th:href="@{/}">Inicio</a>
+        <th:block sec:authorize="hasRole('ADMINISTRADOR')">
+            <a th:href="@{/usuarios}">Usuarios</a>
+            <a th:href="@{/sedes}">Sedes</a>
+            <a th:href="@{/categorias}">Categorías</a>
+        </th:block>
+        <th:block sec:authorize="hasRole('JEFE')">
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/marcas}">Marcas</a>
+            <a href="#" class="pronto" title="Fase 3">Entradas</a>
+            <a href="#" class="pronto" title="Fase 3">Salidas</a>
+            <a href="#" class="pronto" title="Fase 3">Ajustes</a>
+            <a href="#" class="pronto" title="Fase 4">Reportes</a>
+        </th:block>
+        <th:block sec:authorize="hasRole('ASISTENTE')">
+            <a th:href="@{/productos}">Productos</a>
+            <a href="#" class="pronto" title="Fase 3">Entradas</a>
+            <a href="#" class="pronto" title="Fase 3">Salidas</a>
+        </th:block>
+        <a href="#" class="pronto" title="Fase 3">Kardex</a>
+        <a href="#" class="pronto" title="Fase 3">Stock</a>
+    </nav>
+    <div class="usuario">
+        <span sec:authentication="name">usuario</span>
+        <span class="rol" th:text="${#strings.replace(#authentication.authorities.iterator().next().authority, 'ROLE_', '')}">ROL</span>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn-salir">Cerrar sesión</button>
+        </form>
+    </div>
+</header>
+
+<!-- Mensaje de éxito después de guardar -->
+<div th:fragment="mensajes">
+    <div class="alerta ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+</div>
+
+</body>
+</html>
