@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Iniciar sesión')}"></head>
+<body class="fondo-login">
+<main class="caja-login">
+    <h1>📦 Almacén SRH</h1>
+    <p class="sub">Sistema de gestión de almacén<br>SRH S.A.C.</p>
+
+    <div class="alerta error" th:if="${param.error}">Usuario o contraseña incorrectos</div>
+    <div class="alerta ok" th:if="${param.salir}">Cerraste sesión correctamente</div>
+
+    <form th:action="@{/login}" method="post">
+        <label>Usuario
+            <input type="text" name="username" autofocus required>
+        </label>
+        <label>Contraseña
+            <input type="password" name="password" required>
+        </label>
+        <button type="submit" class="btn">Ingresar</button>
+    </form>
+</main>
+</body>
+</html>

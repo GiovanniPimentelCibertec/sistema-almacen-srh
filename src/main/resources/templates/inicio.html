@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="alerta error" th:if="${param.sinPermiso}">No tienes permiso para entrar a esa opción</div>
+
+    <h2>Bienvenido, <span th:text="${usuarioActual?.nombres}">usuario</span></h2>
+
+    <section class="tarjetas">
+        <div class="tarjeta"><span th:text="${totalProductos}">0</span>Productos</div>
+        <div class="tarjeta"><span th:text="${totalSedes}">0</span>Sedes</div>
+        <div class="tarjeta"><span th:text="${totalMovimientos}">0</span>Movimientos registrados</div>
+        <div class="tarjeta alerta-t"><span th:text="${#lists.size(porReponer)}">0</span>Productos por reponer</div>
+    </section>
+
+    <h3>⚠️ Productos por reponer (stock ≤ mínimo)</h3>
+    <table>
+        <thead><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Stock mínimo</th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${porReponer}">
+            <td th:text="${p.codigo}"></td><td th:text="${p.nombre}"></td>
+            <td class="num rojo" th:text="${p.stock}"></td><td class="num" th:text="${p.stockMinimo}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(porReponer)}"><td colspan="4">Todos los productos tienen stock suficiente.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Últimos movimientos</h3>
+    <table>
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Sede</th><th>Registrado por</th><th>Observación</th></tr></thead>
+        <tbody>
+        <tr th:each="m : ${ultimos}">
+            <td th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+            <td><span class="etiqueta" th:classappend="${m.tipo}" th:text="${m.tipo}"></span></td>
+            <td th:text="${m.sede?.nombre} ?: '-'"></td>
+            <td th:text="${m.usuario.username}"></td>
+            <td th:text="${m.observacion}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
