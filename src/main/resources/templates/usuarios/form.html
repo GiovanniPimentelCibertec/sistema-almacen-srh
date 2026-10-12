@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuario')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2 th:text="${usuario.idUsuario == null} ? 'Nuevo usuario' : 'Editar usuario'"></h2>
+    <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post" class="formulario">
+        <input type="hidden" th:field="*{idUsuario}">
+        <input type="hidden" th:field="*{activo}">
+        <label>Nombres
+            <input type="text" th:field="*{nombres}">
+            <small class="error" th:errors="*{nombres}"></small>
+        </label>
+        <label>Usuario
+            <input type="text" th:field="*{username}">
+            <small class="error" th:errors="*{username}"></small>
+        </label>
+        <label>Contraseña <em th:if="${usuario.idUsuario != null}">(déjala vacía para no cambiarla)</em>
+            <input type="password" name="clave">
+            <small class="error" th:errors="*{password}"></small>
+        </label>
+        <label>Rol
+            <select th:field="*{rol}">
+                <option value="">-- Seleccione --</option>
+                <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                <option value="JEFE">JEFE</option>
+                <option value="ASISTENTE">ASISTENTE</option>
+            </select>
+            <small class="error" th:errors="*{rol}"></small>
+        </label>
+        <div class="botones">
+            <button type="submit" class="btn">Guardar</button>
+            <a th:href="@{/usuarios}" class="btn gris">Cancelar</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

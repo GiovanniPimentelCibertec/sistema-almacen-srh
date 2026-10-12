@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="def_Registro" targetNamespace="http://almacen.pe/bpmn" exporter="Sistema de Almacén" exporterVersion="1.0">
+<collaboration id="col_Registro"><participant id="pool_Registro" name="Registro de información en el almacén" processRef="proc_Registro"/></collaboration>
+<process id="proc_Registro" name="Registro de información en el almacén" isExecutable="false"><laneSet id="ls_Registro">
+<lane id="lane_Registro_U" name="Usuario"><flowNodeRef>Registro_s1</flowNodeRef><flowNodeRef>Registro_t1</flowNodeRef><flowNodeRef>Registro_t3</flowNodeRef><flowNodeRef>Registro_t4</flowNodeRef><flowNodeRef>Registro_g2</flowNodeRef><flowNodeRef>Registro_ta</flowNodeRef><flowNodeRef>Registro_tb</flowNodeRef><flowNodeRef>Registro_tc</flowNodeRef><flowNodeRef>Registro_g3</flowNodeRef><flowNodeRef>Registro_t5</flowNodeRef><flowNodeRef>Registro_t7</flowNodeRef><flowNodeRef>Registro_t11</flowNodeRef><flowNodeRef>Registro_e1</flowNodeRef></lane>
+<lane id="lane_Registro_S" name="Sistema web"><flowNodeRef>Registro_t2</flowNodeRef><flowNodeRef>Registro_g1</flowNodeRef><flowNodeRef>Registro_t6</flowNodeRef><flowNodeRef>Registro_g4</flowNodeRef><flowNodeRef>Registro_t10</flowNodeRef><flowNodeRef>Registro_g5</flowNodeRef></lane>
+<lane id="lane_Registro_B" name="Base de datos"><flowNodeRef>Registro_t8</flowNodeRef><flowNodeRef>Registro_t9</flowNodeRef></lane>
+</laneSet>
+<startEvent id="Registro_s1" name="Llega mercadería o un pedido de sede"><outgoing>Registro_f0</outgoing></startEvent>
+<userTask id="Registro_t1" name="Iniciar sesión"><incoming>Registro_f0</incoming><incoming>Registro_f4</incoming><outgoing>Registro_f1</outgoing></userTask>
+<serviceTask id="Registro_t2" name="Validar usuario y rol"><incoming>Registro_f1</incoming><outgoing>Registro_f2</outgoing></serviceTask>
+<exclusiveGateway id="Registro_g1" name="¿Datos correctos?" gatewayDirection="Diverging"><incoming>Registro_f2</incoming><outgoing>Registro_f3</outgoing><outgoing>Registro_f5</outgoing></exclusiveGateway>
+<userTask id="Registro_t3" name="Ver mensaje de error"><incoming>Registro_f3</incoming><outgoing>Registro_f4</outgoing></userTask>
+<userTask id="Registro_t4" name="Elegir tipo de movimiento"><incoming>Registro_f5</incoming><outgoing>Registro_f6</outgoing></userTask>
+<exclusiveGateway id="Registro_g2" name="¿Qué registra?" gatewayDirection="Diverging"><incoming>Registro_f6</incoming><outgoing>Registro_f7</outgoing><outgoing>Registro_f8</outgoing><outgoing>Registro_f9</outgoing></exclusiveGateway>
+<userTask id="Registro_ta" name="Ingresar productos y cantidades recibidas"><incoming>Registro_f7</incoming><outgoing>Registro_f10</outgoing></userTask>
+<userTask id="Registro_tb" name="Elegir sede, cantidad pedida y despachada"><incoming>Registro_f8</incoming><outgoing>Registro_f11</outgoing></userTask>
+<userTask id="Registro_tc" name="Ingresar producto, cantidad y motivo"><incoming>Registro_f9</incoming><outgoing>Registro_f12</outgoing></userTask>
+<exclusiveGateway id="Registro_g3" name="" gatewayDirection="Converging"><incoming>Registro_f10</incoming><incoming>Registro_f11</incoming><incoming>Registro_f12</incoming><outgoing>Registro_f13</outgoing></exclusiveGateway>
+<userTask id="Registro_t5" name="Guardar"><incoming>Registro_f13</incoming><incoming>Registro_f17</incoming><outgoing>Registro_f14</outgoing></userTask>
+<serviceTask id="Registro_t6" name="Validar datos y stock disponible"><incoming>Registro_f14</incoming><outgoing>Registro_f15</outgoing></serviceTask>
+<exclusiveGateway id="Registro_g4" name="¿Datos válidos?" gatewayDirection="Diverging"><incoming>Registro_f15</incoming><outgoing>Registro_f16</outgoing><outgoing>Registro_f18</outgoing></exclusiveGateway>
+<userTask id="Registro_t7" name="Corregir datos"><incoming>Registro_f16</incoming><outgoing>Registro_f17</outgoing></userTask>
+<userTask id="Registro_t8" name="Guardar movimiento y su detalle"><incoming>Registro_f18</incoming><outgoing>Registro_f19</outgoing></userTask>
+<userTask id="Registro_t9" name="Actualizar stock y kardex"><incoming>Registro_f19</incoming><outgoing>Registro_f20</outgoing></userTask>
+<serviceTask id="Registro_t10" name="Recalcular stock mínimo"><incoming>Registro_f20</incoming><outgoing>Registro_f21</outgoing></serviceTask>
+<exclusiveGateway id="Registro_g5" name="¿Quedó bajo el mínimo?" gatewayDirection="Diverging"><incoming>Registro_f21</incoming><outgoing>Registro_f22</outgoing><outgoing>Registro_f23</outgoing></exclusiveGateway>
+<userTask id="Registro_t11" name="Ver alerta de reposición"><incoming>Registro_f22</incoming><outgoing>Registro_f24</outgoing></userTask>
+<endEvent id="Registro_e1" name="Movimiento registrado"><incoming>Registro_f23</incoming><incoming>Registro_f24</incoming></endEvent>
+<sequenceFlow id="Registro_f0" sourceRef="Registro_s1" targetRef="Registro_t1"/>
+<sequenceFlow id="Registro_f1" sourceRef="Registro_t1" targetRef="Registro_t2"/>
+<sequenceFlow id="Registro_f2" sourceRef="Registro_t2" targetRef="Registro_g1"/>
+<sequenceFlow id="Registro_f3" name="No" sourceRef="Registro_g1" targetRef="Registro_t3"/>
+<sequenceFlow id="Registro_f4" sourceRef="Registro_t3" targetRef="Registro_t1"/>
+<sequenceFlow id="Registro_f5" name="Sí" sourceRef="Registro_g1" targetRef="Registro_t4"/>
+<sequenceFlow id="Registro_f6" sourceRef="Registro_t4" targetRef="Registro_g2"/>
+<sequenceFlow id="Registro_f7" name="Entrada" sourceRef="Registro_g2" targetRef="Registro_ta"/>
+<sequenceFlow id="Registro_f8" name="Salida" sourceRef="Registro_g2" targetRef="Registro_tb"/>
+<sequenceFlow id="Registro_f9" name="Ajuste (solo jefe)" sourceRef="Registro_g2" targetRef="Registro_tc"/>
+<sequenceFlow id="Registro_f10" sourceRef="Registro_ta" targetRef="Registro_g3"/>
+<sequenceFlow id="Registro_f11" sourceRef="Registro_tb" targetRef="Registro_g3"/>
+<sequenceFlow id="Registro_f12" sourceRef="Registro_tc" targetRef="Registro_g3"/>
+<sequenceFlow id="Registro_f13" sourceRef="Registro_g3" targetRef="Registro_t5"/>
+<sequenceFlow id="Registro_f14" sourceRef="Registro_t5" targetRef="Registro_t6"/>
+<sequenceFlow id="Registro_f15" sourceRef="Registro_t6" targetRef="Registro_g4"/>
+<sequenceFlow id="Registro_f16" name="No" sourceRef="Registro_g4" targetRef="Registro_t7"/>
+<sequenceFlow id="Registro_f17" sourceRef="Registro_t7" targetRef="Registro_t5"/>
+<sequenceFlow id="Registro_f18" name="Sí" sourceRef="Registro_g4" targetRef="Registro_t8"/>
+<sequenceFlow id="Registro_f19" sourceRef="Registro_t8" targetRef="Registro_t9"/>
+<sequenceFlow id="Registro_f20" sourceRef="Registro_t9" targetRef="Registro_t10"/>
+<sequenceFlow id="Registro_f21" sourceRef="Registro_t10" targetRef="Registro_g5"/>
+<sequenceFlow id="Registro_f22" name="Sí" sourceRef="Registro_g5" targetRef="Registro_t11"/>
+<sequenceFlow id="Registro_f23" name="No" sourceRef="Registro_g5" targetRef="Registro_e1"/>
+<sequenceFlow id="Registro_f24" sourceRef="Registro_t11" targetRef="Registro_e1"/>
+</process>
+<bpmndi:BPMNDiagram id="dia_Registro" name="Registro de información en el almacén"><bpmndi:BPMNPlane id="pl_Registro" bpmnElement="col_Registro">
+<bpmndi:BPMNShape id="pool_Registro_di" bpmnElement="pool_Registro" isHorizontal="true"><dc:Bounds x="0" y="0" width="2040" height="530"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="lane_Registro_U_di" bpmnElement="lane_Registro_U" isHorizontal="true"><dc:Bounds x="30" y="0" width="2010" height="240"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="lane_Registro_S_di" bpmnElement="lane_Registro_S" isHorizontal="true"><dc:Bounds x="30" y="240" width="2010" height="150"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="lane_Registro_B_di" bpmnElement="lane_Registro_B" isHorizontal="true"><dc:Bounds x="30" y="390" width="2010" height="140"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_s1_di" bpmnElement="Registro_s1"><dc:Bounds x="112" y="102" width="36" height="36"/><bpmndi:BPMNLabel><dc:Bounds x="62" y="145" width="136" height="28"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t1_di" bpmnElement="Registro_t1"><dc:Bounds x="185" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t2_di" bpmnElement="Registro_t2"><dc:Bounds x="185" y="287" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_g1_di" bpmnElement="Registro_g1" isMarkerVisible="true"><dc:Bounds x="375" y="290" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="344" y="350" width="111" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t3_di" bpmnElement="Registro_t3"><dc:Bounds x="335" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t4_di" bpmnElement="Registro_t4"><dc:Bounds x="475" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_g2_di" bpmnElement="Registro_g2" isMarkerVisible="true"><dc:Bounds x="655" y="95" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="650" y="151" width="93" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_ta_di" bpmnElement="Registro_ta"><dc:Bounds x="775" y="17" width="150" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_tb_di" bpmnElement="Registro_tb"><dc:Bounds x="775" y="92" width="150" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_tc_di" bpmnElement="Registro_tc"><dc:Bounds x="775" y="167" width="150" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_g3_di" bpmnElement="Registro_g3" isMarkerVisible="true"><dc:Bounds x="975" y="95" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="997" y="109" width="6" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t5_di" bpmnElement="Registro_t5"><dc:Bounds x="1045" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t6_di" bpmnElement="Registro_t6"><dc:Bounds x="1045" y="287" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_g4_di" bpmnElement="Registro_g4" isMarkerVisible="true"><dc:Bounds x="1235" y="290" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="1210" y="350" width="99" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t7_di" bpmnElement="Registro_t7"><dc:Bounds x="1195" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t8_di" bpmnElement="Registro_t8"><dc:Bounds x="1330" y="432" width="140" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t9_di" bpmnElement="Registro_t9"><dc:Bounds x="1500" y="432" width="140" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t10_di" bpmnElement="Registro_t10"><dc:Bounds x="1500" y="287" width="140" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_g5_di" bpmnElement="Registro_g5" isMarkerVisible="true"><dc:Bounds x="1695" y="290" width="50" height="50"/><bpmndi:BPMNLabel><dc:Bounds x="1649" y="350" width="142" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_t11_di" bpmnElement="Registro_t11"><dc:Bounds x="1655" y="92" width="130" height="56"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Registro_e1_di" bpmnElement="Registro_e1"><dc:Bounds x="1842" y="102" width="36" height="36"/><bpmndi:BPMNLabel><dc:Bounds x="1886" y="114" width="136" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Registro_f0_di" bpmnElement="Registro_f0"><di:waypoint x="148" y="120"/><di:waypoint x="185" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f1_di" bpmnElement="Registro_f1"><di:waypoint x="250" y="148"/><di:waypoint x="250" y="287"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f2_di" bpmnElement="Registro_f2"><di:waypoint x="315" y="315"/><di:waypoint x="375" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f3_di" bpmnElement="Registro_f3"><di:waypoint x="400" y="290"/><di:waypoint x="400" y="148"/><bpmndi:BPMNLabel><dc:Bounds x="408" y="239" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f4_di" bpmnElement="Registro_f4"><di:waypoint x="335" y="120"/><di:waypoint x="315" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f5_di" bpmnElement="Registro_f5"><di:waypoint x="425" y="315"/><di:waypoint x="540" y="315"/><di:waypoint x="540" y="148"/><bpmndi:BPMNLabel><dc:Bounds x="438" y="296" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f6_di" bpmnElement="Registro_f6"><di:waypoint x="605" y="120"/><di:waypoint x="655" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f7_di" bpmnElement="Registro_f7"><di:waypoint x="680" y="95"/><di:waypoint x="680" y="45"/><di:waypoint x="775" y="45"/><bpmndi:BPMNLabel><dc:Bounds x="623" y="40" width="49" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f8_di" bpmnElement="Registro_f8"><di:waypoint x="705" y="120"/><di:waypoint x="775" y="120"/><bpmndi:BPMNLabel><dc:Bounds x="717" y="101" width="43" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f9_di" bpmnElement="Registro_f9"><di:waypoint x="680" y="145"/><di:waypoint x="680" y="195"/><di:waypoint x="775" y="195"/><bpmndi:BPMNLabel><dc:Bounds x="554" y="188" width="118" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f10_di" bpmnElement="Registro_f10"><di:waypoint x="925" y="45"/><di:waypoint x="1000" y="45"/><di:waypoint x="1000" y="95"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f11_di" bpmnElement="Registro_f11"><di:waypoint x="925" y="120"/><di:waypoint x="975" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f12_di" bpmnElement="Registro_f12"><di:waypoint x="925" y="195"/><di:waypoint x="1000" y="195"/><di:waypoint x="1000" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f13_di" bpmnElement="Registro_f13"><di:waypoint x="1025" y="120"/><di:waypoint x="1045" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f14_di" bpmnElement="Registro_f14"><di:waypoint x="1110" y="148"/><di:waypoint x="1110" y="287"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f15_di" bpmnElement="Registro_f15"><di:waypoint x="1175" y="315"/><di:waypoint x="1235" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f16_di" bpmnElement="Registro_f16"><di:waypoint x="1260" y="290"/><di:waypoint x="1260" y="148"/><bpmndi:BPMNLabel><dc:Bounds x="1268" y="239" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f17_di" bpmnElement="Registro_f17"><di:waypoint x="1195" y="120"/><di:waypoint x="1175" y="120"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f18_di" bpmnElement="Registro_f18"><di:waypoint x="1285" y="315"/><di:waypoint x="1400" y="315"/><di:waypoint x="1400" y="432"/><bpmndi:BPMNLabel><dc:Bounds x="1298" y="296" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f19_di" bpmnElement="Registro_f19"><di:waypoint x="1470" y="460"/><di:waypoint x="1500" y="460"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f20_di" bpmnElement="Registro_f20"><di:waypoint x="1570" y="432"/><di:waypoint x="1570" y="343"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f21_di" bpmnElement="Registro_f21"><di:waypoint x="1640" y="315"/><di:waypoint x="1695" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f22_di" bpmnElement="Registro_f22"><di:waypoint x="1720" y="290"/><di:waypoint x="1720" y="148"/><bpmndi:BPMNLabel><dc:Bounds x="1728" y="239" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f23_di" bpmnElement="Registro_f23"><di:waypoint x="1745" y="315"/><di:waypoint x="1860" y="315"/><di:waypoint x="1860" y="138"/><bpmndi:BPMNLabel><dc:Bounds x="1758" y="296" width="18" height="14"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Registro_f24_di" bpmnElement="Registro_f24"><di:waypoint x="1785" y="120"/><di:waypoint x="1842" y="120"/></bpmndi:BPMNEdge>
+</bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</definitions>

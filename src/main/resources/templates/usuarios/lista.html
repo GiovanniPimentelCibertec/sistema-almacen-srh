@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuarios')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="titulo"><h2>Usuarios</h2><a th:href="@{/usuarios/nuevo}" class="btn">+ Nuevo usuario</a></div>
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+    <table>
+        <thead><tr><th>#</th><th>Nombres</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        <tr th:each="u : ${usuarios}">
+            <td th:text="${u.idUsuario}"></td>
+            <td th:text="${u.nombres}"></td>
+            <td th:text="${u.username}"></td>
+            <td th:text="${u.rol}"></td>
+            <td><span class="estado" th:classappend="${u.activo} ? 'on' : 'off'" th:text="${u.activo} ? 'Activo' : 'Inactivo'"></span></td>
+            <td class="acciones">
+                <a th:href="@{/usuarios/editar/{id}(id=${u.idUsuario})}" class="btn-sm">Editar</a>
+                <form th:action="@{/usuarios/estado/{id}(id=${u.idUsuario})}" method="post">
+                    <button class="btn-sm gris" th:text="${u.activo} ? 'Desactivar' : 'Activar'"></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
