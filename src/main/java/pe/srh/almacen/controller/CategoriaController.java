@@ -1,5 +1,8 @@
 package pe.srh.almacen.controller;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +30,17 @@ public class CategoriaController {
     }
 
     @PostMapping("/guardar")
-    public String guardarCategoria(@ModelAttribute Categoria categoria, RedirectAttributes redirectAttributes) {
-        categoriaService.guardar(categoria);
+    public String guardarCategoria(@Valid @ModelAttribute Categoria categoria, BindingResult result,
+                                   Model model, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "categorias/formulario";
+        }
+        try {
+            categoriaService.guardar(categoria);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "Ya existe una categoría con ese nombre");
+            return "categorias/formulario";
+        }
         redirectAttributes.addFlashAttribute("mensaje", "¡Categoría guardada con éxito!");
         return "redirect:/categorias";
     }
@@ -50,7 +62,7 @@ public class CategoriaController {
             categoriaService.eliminar(id);
             redirectAttributes.addFlashAttribute("mensaje", "¡Categoría eliminada con éxito!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("mensaje", "No se puede eliminar la categoría porque está asociada a productos.");
+            redirectAttributes.addFlashAttribute("error", "No se puede eliminar la categoría porque está asociada a productos.");
         }
         return "redirect:/categorias";
     }

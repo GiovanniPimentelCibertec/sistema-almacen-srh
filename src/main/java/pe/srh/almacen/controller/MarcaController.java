@@ -1,10 +1,12 @@
 package pe.srh.almacen.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import pe.srh.almacen.entity.Marca;
@@ -16,15 +18,10 @@ public class MarcaController {
 
     @Autowired
     private MarcaRepository marcaRepository;
-    
-    @GetMapping({"", "/"})
-    public String inicio() {
-        return "redirect:/marcas/listar";
-    }
 
-    @GetMapping("/listar")
+    @GetMapping({"", "/", "/listar"})
     public String listarMarcas(Model model) {
-        model.addAttribute("marcas", marcaRepository.findAll());
+        model.addAttribute("marcas", marcaRepository.findAllByOrderByNombreAsc());
         return "marcas/listar";
     }
 
@@ -35,11 +32,18 @@ public class MarcaController {
     }
 
     @PostMapping("/guardar")
-    public String guardarMarca(@Valid @ModelAttribute("marca") Marca marca, BindingResult result, Model model) {
+    public String guardarMarca(@Valid @ModelAttribute("marca") Marca marca, BindingResult result,
+                               Model model, RedirectAttributes flash) {
         if (result.hasErrors()) {
             return "marcas/formulario";
         }
-        marcaRepository.save(marca);
+        try {
+            marcaRepository.save(marca);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "Ya existe una marca con ese nombre");
+            return "marcas/formulario";
+        }
+        flash.addFlashAttribute("mensaje", "Marca guardada correctamente");
         return "redirect:/marcas/listar";
     }
 
@@ -53,12 +57,14 @@ public class MarcaController {
         return "marcas/formulario";
     }
 
-    @GetMapping("/eliminar/{id}")
-    public String eliminarMarca(@PathVariable("id") Integer id) {
+    @PostMapping("/eliminar/{id}")
+    public String eliminarMarca(@PathVariable("id") Integer id, RedirectAttributes flash) {
         try {
             marcaRepository.deleteById(id);
-        } catch (Exception e) {
-            // Manejar si hay restricción por relaciones con productos
+            flash.addFlashAttribute("mensaje", "Marca eliminada");
+        } catch (DataIntegrityViolationException e) {
+            // Si algún producto usa la marca, la base de datos no deja borrarla
+            flash.addFlashAttribute("error", "No se puede eliminar la marca porque está asociada a productos.");
         }
         return "redirect:/marcas/listar";
     }

@@ -33,7 +33,10 @@
                     </td>
                     <td style="padding: 10px; text-align: center;">
                         <a th:href="@{/sedes/editar/{id}(id=${sede.idSede})}" style="color: blue; margin-right: 10px;">Editar</a>
-                        <a th:href="@{/sedes/eliminar/{id}(id=${sede.idSede})}" style="color: red;" onclick="return confirm('¿Está seguro de eliminar esta sede?');">Eliminar</a>
+                        <form th:action="@{/sedes/estado/{id}(id=${sede.idSede})}" method="post" style="display:inline;">
+                            <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;"
+                                    th:text="${sede.activo} ? 'Desactivar' : 'Activar'">Desactivar</button>
+                        </form>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(sedes)}">

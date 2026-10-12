@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import pe.srh.almacen.entity.Producto;
@@ -24,34 +25,43 @@ public class ProductoController {
 
     @Autowired
     private MarcaRepository marcaRepository;
-    
-    @GetMapping({"", "/"})
-    public String inicio() {
-        return "redirect:/productos/listar";
-    }
 
-    @GetMapping("/listar")
+    // "/productos" lo ven el jefe y el asistente; "/listar" queda para los enlaces del jefe
+    @GetMapping({"", "/", "/listar"})
     public String listarProductos(Model model) {
-        model.addAttribute("productos", productoRepository.findAll());
+        model.addAttribute("productos", productoRepository.findAllByOrderByCodigoAsc());
         return "productos/listar";
     }
 
     @GetMapping("/nuevo")
     public String nuevoProducto(Model model) {
-        model.addAttribute("producto", new Producto());
-        model.addAttribute("categorias", categoriaRepository.findAll());
-        model.addAttribute("marcas", marcaRepository.findAll());
-        return "productos/formulario";
+        return mostrarFormulario(new Producto(), model);
     }
 
     @PostMapping("/guardar")
-    public String guardarProducto(@Valid @ModelAttribute("producto") Producto producto, BindingResult result, Model model) {
+    public String guardarProducto(@Valid @ModelAttribute("producto") Producto producto, BindingResult result,
+                                  Model model, RedirectAttributes flash) {
+        boolean esNuevo = producto.getIdProducto() == null;
+        if (esNuevo && productoRepository.existsByCodigo(producto.getCodigo())) {
+            result.rejectValue("codigo", "repetido", "Ese código ya existe");
+        }
         if (result.hasErrors()) {
-            model.addAttribute("categorias", categoriaRepository.findAll());
-            model.addAttribute("marcas", marcaRepository.findAll());
-            return "productos/formulario";
+            return mostrarFormulario(producto, model);
+        }
+        if (esNuevo) {
+            // Un producto nuevo empieza sin stock; el stock solo sube con una ENTRADA
+            producto.setStock(0);
+            producto.setStockMinimo(producto.getMinimoInicial());
+            producto.setActivo(true);
+        } else {
+            // El stock, el mínimo calculado y el estado no se cambian desde este formulario
+            Producto actual = productoRepository.findById(producto.getIdProducto()).orElseThrow();
+            producto.setStock(actual.getStock());
+            producto.setStockMinimo(actual.getStockMinimo());
+            producto.setActivo(actual.getActivo());
         }
         productoRepository.save(producto);
+        flash.addFlashAttribute("mensaje", "Producto guardado correctamente");
         return "redirect:/productos/listar";
     }
 
@@ -61,19 +71,23 @@ public class ProductoController {
         if (producto == null) {
             return "redirect:/productos/listar";
         }
-        model.addAttribute("producto", producto);
-        model.addAttribute("categorias", categoriaRepository.findAll());
-        model.addAttribute("marcas", marcaRepository.findAll());
-        return "productos/formulario";
+        return mostrarFormulario(producto, model);
     }
 
-    @GetMapping("/eliminar/{id}")
-    public String eliminarProducto(@PathVariable("id") Integer id) {
-        try {
-            productoRepository.deleteById(id);
-        } catch (Exception e) {
-            // Manejar excepciones si está asociado a movimientos
-        }
+    // Los productos no se borran (tienen movimientos): se activan o desactivan
+    @PostMapping("/estado/{id}")
+    public String cambiarEstado(@PathVariable("id") Integer id, RedirectAttributes flash) {
+        Producto p = productoRepository.findById(id).orElseThrow();
+        p.setActivo(!p.getActivo());
+        productoRepository.save(p);
+        flash.addFlashAttribute("mensaje", "Producto " + (p.getActivo() ? "activado" : "desactivado"));
         return "redirect:/productos/listar";
+    }
+
+    private String mostrarFormulario(Producto producto, Model model) {
+        model.addAttribute("producto", producto);
+        model.addAttribute("categorias", categoriaRepository.findAllByOrderByNombreAsc());
+        model.addAttribute("marcas", marcaRepository.findAllByOrderByNombreAsc());
+        return "productos/formulario";
     }
 }

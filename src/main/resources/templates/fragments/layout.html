@@ -46,6 +46,7 @@
 <!-- Mensaje de éxito después de guardar -->
 <div th:fragment="mensajes">
     <div class="alerta ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+    <div class="alerta error" th:if="${error}" th:text="${error}"></div>
 </div>
 
 </body>

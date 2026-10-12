@@ -19,6 +19,11 @@ public class SedeServiceImpl implements SedeService {
 
     @Override
     public void guardar(Sede sede) {
+        // La base de datos solo acepta PLANTA u HOSPITAL en mayúsculas
+        sede.setTipo(sede.getTipo().toUpperCase());
+        if (sede.getActivo() == null) {
+            sede.setActivo(true);
+        }
         sedeRepository.save(sede);
     }
 
@@ -28,7 +33,9 @@ public class SedeServiceImpl implements SedeService {
     }
 
     @Override
-    public void eliminar(Integer id) {
-        sedeRepository.deleteById(id);
+    public void cambiarEstado(Integer id) {
+        Sede sede = sedeRepository.findById(id).orElseThrow();
+        sede.setActivo(!sede.getActivo());
+        sedeRepository.save(sede);
     }
 }
