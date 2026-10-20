@@ -1,71 +1,56 @@
 package pe.srh.almacen.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.validation.Valid;
 import pe.srh.almacen.entity.Marca;
 import pe.srh.almacen.repository.MarcaRepository;
 
+/** Mantenimiento de marcas (rol JEFE). */
 @Controller
 @RequestMapping("/marcas")
 public class MarcaController {
 
-    @Autowired
-    private MarcaRepository marcaRepository;
+    private final MarcaRepository repository;
 
-    @GetMapping({"", "/", "/listar"})
-    public String listarMarcas(Model model) {
-        model.addAttribute("marcas", marcaRepository.findAllByOrderByNombreAsc());
-        return "marcas/listar";
+    public MarcaController(MarcaRepository repository) {
+        this.repository = repository;
+    }
+
+    @GetMapping
+    public String listar(Model model) {
+        model.addAttribute("lista", repository.findAllByOrderByNombreAsc());
+        return "marcas/lista";
     }
 
     @GetMapping("/nuevo")
-    public String nuevaMarca(Model model) {
+    public String nuevo(Model model) {
         model.addAttribute("marca", new Marca());
-        return "marcas/formulario";
-    }
-
-    @PostMapping("/guardar")
-    public String guardarMarca(@Valid @ModelAttribute("marca") Marca marca, BindingResult result,
-                               Model model, RedirectAttributes flash) {
-        if (result.hasErrors()) {
-            return "marcas/formulario";
-        }
-        try {
-            marcaRepository.save(marca);
-        } catch (DataIntegrityViolationException e) {
-            model.addAttribute("error", "Ya existe una marca con ese nombre");
-            return "marcas/formulario";
-        }
-        flash.addFlashAttribute("mensaje", "Marca guardada correctamente");
-        return "redirect:/marcas/listar";
+        return "marcas/form";
     }
 
     @GetMapping("/editar/{id}")
-    public String editarMarca(@PathVariable("id") Integer id, Model model) {
-        Marca marca = marcaRepository.findById(id).orElse(null);
-        if (marca == null) {
-            return "redirect:/marcas/listar";
-        }
-        model.addAttribute("marca", marca);
-        return "marcas/formulario";
+    public String editar(@PathVariable Integer id, Model model) {
+        model.addAttribute("marca", repository.findById(id).orElseThrow());
+        return "marcas/form";
     }
 
-    @PostMapping("/eliminar/{id}")
-    public String eliminarMarca(@PathVariable("id") Integer id, RedirectAttributes flash) {
-        try {
-            marcaRepository.deleteById(id);
-            flash.addFlashAttribute("mensaje", "Marca eliminada");
-        } catch (DataIntegrityViolationException e) {
-            // Si algún producto usa la marca, la base de datos no deja borrarla
-            flash.addFlashAttribute("error", "No se puede eliminar la marca porque está asociada a productos.");
+    @PostMapping("/guardar")
+    public String guardar(@Valid @ModelAttribute("marca") Marca marca, BindingResult result, RedirectAttributes flash) {
+        if (result.hasErrors()) {
+            return "marcas/form";
         }
-        return "redirect:/marcas/listar";
+        try {
+            repository.save(marca);
+        } catch (DataIntegrityViolationException e) {
+            result.rejectValue("nombre", "repetido", "Ese nombre ya está registrado");
+            return "marcas/form";
+        }
+        flash.addFlashAttribute("mensaje", "Marca guardada correctamente");
+        return "redirect:/marcas";
     }
 }
