@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${esSalida} ? 'Detalle de salida' : 'Detalle de entrada')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="titulo"><h2 th:text="|${esSalida ? 'Salida' : 'Entrada'} N.° ${mov.idMovimiento}|">Movimiento</h2>
+        <a th:href="@{${ruta} + '/nueva'}" class="btn" th:text="${esSalida} ? '+ Nueva salida' : '+ Nueva entrada'"></a></div>
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="alerta error" th:if="${porReponer}">
+        <strong>⚠️ Reponer:</strong> <th:block th:text="${#lists.size(porReponer) == 1} ? 'este producto quedó' : 'estos productos quedaron'">estos productos quedaron</th:block> en su stock mínimo o por debajo:
+        <ul><li th:each="p : ${porReponer}" th:text="${p}"></li></ul>
+    </div>
+
+    <table class="angosta resumen">
+        <tr><th>Fecha</th><td th:text="${#temporals.format(mov.fecha, 'dd/MM/yyyy HH:mm')}"></td></tr>
+        <tr th:if="${esSalida}"><th>Sede</th><td th:text="${mov.sede != null ? mov.sede.nombre : '-'}"></td></tr>
+        <tr><th>Registrado por</th><td th:text="|${mov.usuario.nombres} (${mov.usuario.username})|"></td></tr>
+        <tr th:if="${esSalida}"><th>Entrega</th><td><span class="estado" th:classappend="${mov.entregaIncompleta} ? 'off' : 'on'"
+                                      th:text="${mov.entregaIncompleta} ? 'Incompleta' : 'Completa'"></span></td></tr>
+        <tr><th>Observación</th><td th:text="${mov.observacion} ?: '-'"></td></tr>
+    </table>
+
+    <h3>Productos</h3>
+    <table>
+        <thead><tr><th>Código</th><th>Producto</th><th>Unidad</th>
+            <th class="num" th:if="${esSalida}">Pedido</th>
+            <th class="num" th:text="${esSalida} ? 'Despachado' : 'Cantidad recibida'"></th>
+            <th class="num" th:if="${esSalida}">Faltó</th><th class="num">Stock que quedó</th></tr></thead>
+        <tbody>
+        <tr th:each="d : ${mov.detalles}">
+            <td th:text="${d.producto.codigo}"></td>
+            <td th:text="${d.producto.nombre}"></td>
+            <td th:text="${d.producto.unidad}"></td>
+            <td class="num" th:if="${esSalida}" th:text="${d.cantidadPedida} ?: '-'"></td>
+            <td class="num" th:text="${d.cantidad}"></td>
+            <td class="num" th:if="${esSalida}" th:with="falta=${d.cantidadPedida != null ? d.cantidadPedida - d.cantidad : 0}"
+                th:text="${falta}" th:classappend="${falta > 0} ? 'rojo'"></td>
+            <td class="num" th:text="${d.stockResultante}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p><a th:href="@{${ruta}}" th:text="${esSalida} ? '← Volver a las salidas' : '← Volver a las entradas'"></a></p>
+</main>
+</body>
+</html>

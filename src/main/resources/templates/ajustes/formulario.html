@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nuevo ajuste')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2>Nuevo ajuste de inventario</h2>
+
+    <div class="alerta error" th:if="${errores}">
+        <strong>No se guardó el ajuste.</strong> Corrija lo siguiente:
+        <ul><li th:each="e : ${errores}" th:text="${e}"></li></ul>
+    </div>
+
+    <form th:action="@{/ajustes/guardar}" th:object="${ajuste}" method="post" class="formulario">
+        <label>Producto
+            <select th:field="*{idProducto}" id="producto">
+                <option value="">-- Seleccione --</option>
+                <option th:each="p : ${productos}" th:value="${p.idProducto}"
+                        th:attr="data-stock=${p.stock}, data-unidad=${p.unidad}"
+                        th:text="|${p.codigo} - ${p.nombre}|"></option>
+            </select>
+            <em id="stockActual">Stock en el sistema: -</em>
+        </label>
+        <label>Cantidad a sumar o restar
+            <input type="number" th:field="*{cantidad}" id="cantidad" placeholder="Ej.: 5 o -3">
+            <em id="resultado">Use un número positivo si sobra mercadería y negativo si falta.</em>
+        </label>
+        <label>Motivo
+            <input type="text" th:field="*{motivo}" maxlength="200" placeholder="Ej.: Conteo físico de fin de mes">
+        </label>
+        <div class="botones">
+            <button type="submit" class="btn">Guardar ajuste</button>
+            <a th:href="@{/ajustes}" class="btn gris">Cancelar</a>
+        </div>
+    </form>
+</main>
+<script>
+    // Muestra el stock actual y cómo quedará después del ajuste
+    const producto = document.getElementById('producto');
+    const cantidad = document.getElementById('cantidad');
+    function actualizar() {
+        const op = producto.selectedOptions[0];
+        const hay = op && op.dataset.stock !== undefined;
+        document.getElementById('stockActual').textContent =
+            'Stock en el sistema: ' + (hay ? op.dataset.stock + ' ' + op.dataset.unidad : '-');
+        const res = document.getElementById('resultado');
+        if (hay && cantidad.value !== '') {
+            const nuevo = parseInt(op.dataset.stock) + parseInt(cantidad.value);
+            res.textContent = 'Quedará con ' + nuevo + ' ' + op.dataset.unidad + (nuevo < 0 ? ' (no permitido)' : '');
+            res.classList.toggle('rojo', nuevo < 0);
+        }
+    }
+    producto.addEventListener('change', actualizar);
+    cantidad.addEventListener('input', actualizar);
+    actualizar();
+</script>
+</body>
+</html>

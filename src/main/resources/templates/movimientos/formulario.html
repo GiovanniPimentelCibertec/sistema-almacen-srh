@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${esSalida} ? 'Nueva salida' : 'Nueva entrada')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2 th:text="${esSalida} ? 'Nueva salida a sede' : 'Nueva entrada al almacén'">Nuevo movimiento</h2>
+
+    <div class="alerta error" th:if="${errores}">
+        <strong>No se guardó el movimiento.</strong> Corrija lo siguiente:
+        <ul><li th:each="e : ${errores}" th:text="${e}"></li></ul>
+    </div>
+
+    <form th:action="@{${ruta} + '/guardar'}" th:object="${form}" method="post" class="formulario ancho">
+        <div class="fila-dos">
+            <label th:if="${esSalida}">Sede de destino
+                <select th:field="*{idSede}">
+                    <option value="">-- Seleccione --</option>
+                    <option th:each="s : ${sedes}" th:value="${s.idSede}" th:text="${s.nombre}"></option>
+                </select>
+            </label>
+            <label th:classappend="${!esSalida} ? 'toda'">Observación
+                <input type="text" th:field="*{observacion}" maxlength="200"
+                       th:placeholder="${esSalida} ? 'Ej.: pedido por WhatsApp del turno mañana' : 'Ej.: compra según guía de remisión 001-2345'">
+            </label>
+        </div>
+
+        <table class="detalle">
+            <thead><tr><th>Producto</th><th class="num">En stock</th>
+                <th class="num" th:if="${esSalida}">Pedido</th>
+                <th class="num" th:text="${esSalida} ? 'Despachado' : 'Cantidad recibida'"></th><th></th></tr></thead>
+            <tbody id="lineas">
+            <tr th:each="l, i : *{lineas}" class="linea">
+                <td>
+                    <select th:name="|lineas[${i.index}].idProducto|" class="producto">
+                        <option value="">-- Seleccione --</option>
+                        <option th:each="p : ${productos}" th:value="${p.idProducto}"
+                                th:attr="data-stock=${p.stock}, data-unidad=${p.unidad}"
+                                th:text="|${p.codigo} - ${p.nombre}|"
+                                th:selected="${l.idProducto == p.idProducto}"></option>
+                    </select>
+                </td>
+                <td class="num stock">-</td>
+                <td th:if="${esSalida}"><input type="number" min="1" class="corto" th:name="|lineas[${i.index}].cantidadPedida|" th:value="${l.cantidadPedida}"></td>
+                <td><input type="number" th:min="${esSalida} ? 0 : 1" class="corto cantidad" th:name="|lineas[${i.index}].cantidad|" th:value="${l.cantidad}"></td>
+                <td><button type="button" class="btn-sm gris quitar" title="Quitar producto">✕</button></td>
+            </tr>
+            </tbody>
+        </table>
+        <div><button type="button" class="btn-sm" id="agregar">+ Agregar producto</button></div>
+        <p class="nota" th:if="${esSalida}">Si la sede pidió más de lo que hay, registre lo que realmente se despachó: la salida quedará como
+            <strong>entrega incompleta</strong>. Al guardar, el sistema valida el stock y guarda todo en una sola operación.</p>
+        <p class="nota" th:unless="${esSalida}">Al guardar, el stock de cada producto aumenta con la cantidad recibida.</p>
+
+        <div class="botones">
+            <button type="submit" class="btn" th:text="${esSalida} ? 'Guardar salida' : 'Guardar entrada'">Guardar</button>
+            <a th:href="@{${ruta}}" class="btn gris">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+<script th:inline="javascript">
+    // Agrega y quita renglones, renumera los nombres (lineas[0], lineas[1]...) y muestra el stock del producto elegido
+    const esSalida = /*[[${esSalida}]]*/ true;
+    const tbody = document.getElementById('lineas');
+
+    function renumerar() {
+        tbody.querySelectorAll('tr.linea').forEach((tr, i) => {
+            tr.querySelectorAll('[name]').forEach(el => {
+                el.name = el.name.replace(/lineas\[\d+\]/, 'lineas[' + i + ']');
+            });
+        });
+    }
+
+    function actualizarStock(tr) {
+        const opcion = tr.querySelector('select.producto').selectedOptions[0];
+        const celda = tr.querySelector('.stock');
+        const cantidad = tr.querySelector('.cantidad');
+        const stock = opcion && opcion.dataset.stock !== undefined ? parseInt(opcion.dataset.stock) : null;
+        celda.textContent = stock === null ? '-' : stock + ' ' + opcion.dataset.unidad;
+        const excede = esSalida && stock !== null && cantidad.value !== '' && parseInt(cantidad.value) > stock;
+        celda.classList.toggle('rojo', excede);
+    }
+
+    document.getElementById('agregar').addEventListener('click', () => {
+        const nueva = tbody.querySelector('tr.linea').cloneNode(true);
+        nueva.querySelectorAll('input').forEach(el => el.value = '');
+        nueva.querySelector('select').selectedIndex = 0;
+        tbody.appendChild(nueva);
+        renumerar();
+        actualizarStock(nueva);
+    });
+
+    tbody.addEventListener('click', e => {
+        if (!e.target.classList.contains('quitar')) return;
+        if (tbody.querySelectorAll('tr.linea').length > 1) {
+            e.target.closest('tr').remove();
+            renumerar();
+        }
+    });
+
+    tbody.addEventListener('change', e => actualizarStock(e.target.closest('tr')));
+    tbody.addEventListener('input', e => actualizarStock(e.target.closest('tr')));
+    tbody.querySelectorAll('tr.linea').forEach(actualizarStock);
+</script>
+</body>
+</html>

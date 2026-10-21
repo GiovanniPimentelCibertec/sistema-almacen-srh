@@ -32,8 +32,23 @@ public class Movimiento {
     @Column(length = 200)
     private String observacion;
 
+    // ACTIVO o ANULADO: los movimientos no se borran, se anulan
+    @Column(nullable = false, length = 10)
+    private String estado = "ACTIVO";
+
+    // Solo salidas a hospitales: null = pendiente de confirmar, CONFORME o DIFERENTE
+    @Column(name = "confirmado_sede", length = 10)
+    private String confirmadoSede;
+
     @OneToMany(mappedBy = "movimiento", cascade = CascadeType.ALL)
     private List<MovimientoDetalle> detalles = new ArrayList<>();
+
+    /** Una salida es incompleta si en algún producto se despachó menos de lo pedido. */
+    @Transient
+    public boolean isEntregaIncompleta() {
+        return detalles.stream().anyMatch(d -> d.getCantidadPedida() != null
+                && d.getCantidad() < d.getCantidadPedida());
+    }
 
     public Integer getIdMovimiento() { return idMovimiento; }
     public void setIdMovimiento(Integer idMovimiento) { this.idMovimiento = idMovimiento; }
@@ -52,6 +67,12 @@ public class Movimiento {
 
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public String getConfirmadoSede() { return confirmadoSede; }
+    public void setConfirmadoSede(String confirmadoSede) { this.confirmadoSede = confirmadoSede; }
 
     public List<MovimientoDetalle> getDetalles() { return detalles; }
     public void setDetalles(List<MovimientoDetalle> detalles) { this.detalles = detalles; }

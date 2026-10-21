@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${esSalida} ? 'Salidas' : 'Entradas')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="titulo"><h2 th:text="${esSalida} ? 'Salidas a sedes' : 'Entradas al almacén'">Movimientos</h2>
+        <a th:href="@{${ruta} + '/nueva'}" class="btn" th:text="${esSalida} ? '+ Nueva salida' : '+ Nueva entrada'"></a></div>
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+    <table>
+        <thead><tr><th>N.°</th><th>Fecha</th><th th:if="${esSalida}">Sede</th><th>Registrado por</th>
+            <th class="num">Productos</th><th th:if="${esSalida}">Entrega</th><th>Observación</th><th></th></tr></thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(movimientos)}"><td colspan="8">No hay movimientos registrados.</td></tr>
+        <tr th:each="m : ${movimientos}" th:classappend="${m.estado == 'ANULADO'} ? 'inactivo'">
+            <td th:text="${m.idMovimiento}"></td>
+            <td th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:if="${esSalida}" th:text="${m.sede != null ? m.sede.nombre : '-'}"></td>
+            <td th:text="${m.usuario.username}"></td>
+            <td class="num" th:text="${#lists.size(m.detalles)}"></td>
+            <td th:if="${esSalida}"><span class="estado" th:classappend="${m.entregaIncompleta} ? 'off' : 'on'"
+                      th:text="${m.entregaIncompleta} ? 'Incompleta' : 'Completa'"></span></td>
+            <td th:text="${m.observacion} ?: '-'"></td>
+            <td><a th:href="@{${ruta} + '/' + ${m.idMovimiento}}" class="btn-sm">Ver</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="nota" th:if="${esSalida}">Una entrega es incompleta cuando en algún producto se despachó menos de lo que pidió la sede.</p>
+</main>
+</body>
+</html>

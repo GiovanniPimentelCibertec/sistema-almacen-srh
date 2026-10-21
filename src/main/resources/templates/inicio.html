@@ -5,27 +5,31 @@
 <header th:replace="~{fragments/layout :: menu}"></header>
 <main class="contenido">
     <div class="alerta error" th:if="${param.sinPermiso}">No tienes permiso para entrar a esa opción</div>
+    <div class="alerta error" th:if="${param.expirado}">La página había expirado y no se guardó nada. Vuelva a intentarlo.</div>
 
     <h2>Bienvenido, <span th:text="${usuarioActual?.nombres}">usuario</span></h2>
 
     <section class="tarjetas">
-        <div class="tarjeta"><span th:text="${totalProductos}">0</span>Productos</div>
-        <div class="tarjeta"><span th:text="${totalSedes}">0</span>Sedes</div>
-        <div class="tarjeta"><span th:text="${totalMovimientos}">0</span>Movimientos registrados</div>
-        <div class="tarjeta alerta-t"><span th:text="${#lists.size(porReponer)}">0</span>Productos por reponer</div>
+        <div class="tarjeta"><span th:text="${totalProductos}">0</span><th:block th:text="${totalProductos == 1} ? 'Producto' : 'Productos'">Productos</th:block></div>
+        <div class="tarjeta"><span th:text="${totalSedes}">0</span><th:block th:text="${totalSedes == 1} ? 'Sede' : 'Sedes'">Sedes</th:block></div>
+        <div class="tarjeta"><span th:text="${totalMovimientos}">0</span><th:block th:text="${totalMovimientos == 1} ? 'Movimiento registrado' : 'Movimientos registrados'">Movimientos registrados</th:block></div>
+        <div class="tarjeta alerta-t"><span th:text="${#lists.size(porReponer)}">0</span><th:block th:text="${#lists.size(porReponer) == 1} ? 'Producto por reponer' : 'Productos por reponer'">Productos por reponer</th:block></div>
     </section>
 
-    <h3>⚠️ Productos por reponer (stock ≤ mínimo)</h3>
-    <table>
-        <thead><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Stock mínimo</th></tr></thead>
-        <tbody>
-        <tr th:each="p : ${porReponer}">
-            <td th:text="${p.codigo}"></td><td th:text="${p.nombre}"></td>
-            <td class="num rojo" th:text="${p.stock}"></td><td class="num" th:text="${p.stockMinimo}"></td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(porReponer)}"><td colspan="4">Todos los productos tienen stock suficiente.</td></tr>
-        </tbody>
-    </table>
+    <!-- La lista solo aparece si hay algo que reponer -->
+    <th:block th:unless="${#lists.isEmpty(porReponer)}">
+        <h3>⚠️ Productos por reponer (stock ≤ mínimo)</h3>
+        <table>
+            <thead><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Stock mínimo</th></tr></thead>
+            <tbody>
+            <tr th:each="p : ${porReponer}">
+                <td th:text="${p.codigo}"></td><td th:text="${p.nombre}"></td>
+                <td class="num rojo" th:text="${p.stock}"></td><td class="num" th:text="${p.stockMinimo}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </th:block>
+    <div class="alerta ok" th:if="${#lists.isEmpty(porReponer)}">Todos los productos tienen stock suficiente.</div>
 
     <h3>Últimos movimientos</h3>
     <table>
