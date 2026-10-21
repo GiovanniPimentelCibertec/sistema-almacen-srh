@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hospitales')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2>Stock por sede hospitalaria</h2>
+
+    <div class="pestanas">
+        <a th:each="h : ${hospitales}" th:href="@{/hospitales(sede=${h.idSede})}"
+           th:classappend="${elegido != null and elegido.idSede == h.idSede} ? 'activa'">
+            <span th:text="${h.nombre}"></span>
+            <span class="estado off" th:if="${pendientes.get(h) > 0}"
+                  th:text="|${pendientes.get(h)} por confirmar|"></span>
+            <span class="estado off" th:if="${porRevisar.get(h) > 0}"
+                  th:text="|${porRevisar.get(h)} ${porRevisar.get(h) == 1 ? 'diferencia' : 'diferencias'}|"></span>
+        </a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <p th:if="${elegido == null}">No hay hospitales activos registrados.</p>
+
+    <th:block th:if="${elegido != null}">
+        <div class="alerta error" th:if="${!#lists.isEmpty(diferencias)}">
+            <strong th:text="|${#lists.size(diferencias)} ${#lists.size(diferencias) == 1 ? 'diferencia' : 'diferencias'} de envío por revisar en ${elegido.nombre}|"></strong>
+            <table class="diferencias">
+                <thead><tr><th>Envío</th><th>Detalle</th><th>Reportó</th><th>Revisión</th></tr></thead>
+                <tbody>
+                <tr th:each="e : ${diferencias}">
+                    <td><a th:href="@{/salidas/{id}(id=${e.movimiento.idMovimiento})}" th:text="|N.° ${e.movimiento.idMovimiento}|"></a></td>
+                    <td th:text="${e.detalle}"></td>
+                    <td th:text="|${e.usuarioReporta.username} el ${#temporals.format(e.fechaReporte, 'dd/MM HH:mm')}|"></td>
+                    <td>
+                        <form th:action="@{/hospitales/diferencias/{id}/revisar(id=${e.idError})}" method="post" class="acciones">
+                            <input type="hidden" name="sede" th:value="${elegido.idSede}">
+                            <button type="submit" name="estado" value="APROBADO" class="btn-sm">Revisado: aprobar</button>
+                            <button type="submit" name="estado" value="RECHAZADO" class="btn-sm gris">Revisado: rechazar</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="nota">Revisar cierra el reporte y guarda quién lo revisó y cuándo. No cambia el stock del hospital:
+                lo que no llegó ya se descontó al confirmar el envío.</p>
+        </div>
+
+        <th:block th:if="${elegido.controlIniciado}">
+            <p class="nota" th:text="|El hospital empezó con stock 0 el ${#temporals.format(elegido.fechaInicioControl, 'dd/MM/yyyy')}.|"></p>
+            <table>
+                <thead><tr><th>Código</th><th>Producto</th><th>Unidad</th><th class="num">Stock en el hospital</th>
+                    <th class="num">En camino</th><th class="num">Consumo 7 días</th><th class="num">Consumo 30 días</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${stock}" th:classappend="${f.stock == 0 and f.enCamino == 0} ? 'inactivo'">
+                    <td th:text="${f.producto.codigo}"></td>
+                    <td th:text="${f.producto.nombre}"></td>
+                    <td th:text="${f.producto.unidad}"></td>
+                    <td class="num"><strong th:text="${f.stock}"></strong></td>
+                    <td class="num" th:text="${f.enCamino > 0} ? ${f.enCamino} : '-'"></td>
+                    <td class="num" th:text="${f.consumo7dias}"></td>
+                    <td class="num" th:text="${f.consumo30dias}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>Envíos sin confirmar</h3>
+            <p class="nota" th:if="${#lists.isEmpty(envios)}">Todos los envíos a este hospital están confirmados.</p>
+            <table th:unless="${#lists.isEmpty(envios)}">
+                <thead><tr><th>N.°</th><th>Fecha</th><th>Productos</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${envios}">
+                    <td th:text="${m.idMovimiento}"></td>
+                    <td th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td><span th:each="d, i : ${m.detalles}" th:text="|${d.producto.codigo} x ${d.cantidad}${i.last ? '' : ', '}|"></span></td>
+                    <td><a th:href="@{/salidas/{id}(id=${m.idMovimiento})}" class="btn-sm">Ver salida</a></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>Últimos registros del hospital</h3>
+            <p class="nota" th:if="${#lists.isEmpty(registros)}">Aún no hay registros.</p>
+            <table th:unless="${#lists.isEmpty(registros)}">
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Producto</th><th class="num">Cantidad</th><th>Registró</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${registros}">
+                    <td th:text="${#temporals.format(r.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${r.tipo == 'CONSUMO'} ? |Consumo (${r.turnoNombre})| : ${r.motivo}"></td>
+                    <td th:text="${r.producto.nombre}"></td>
+                    <td class="num" th:text="${r.tipo == 'CONSUMO'} ? '-' + ${r.cantidad} : (${r.cantidad > 0} ? '+' + ${r.cantidad} : ${r.cantidad})"
+                        th:classappend="${r.tipo == 'CONSUMO' or r.cantidad < 0} ? 'rojo'"></td>
+                    <td th:text="${r.usuario.username}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </th:block>
+    </th:block>
+    <p class="nota">Cada hospital empieza en 0. Su stock = lo recibido en envíos confirmados − lo que no llegó − lo consumido.</p>
+</main>
+</body>
+</html>

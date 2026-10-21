@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ajustes')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="titulo"><h2>Ajustes de inventario</h2>
+        <a th:href="@{/ajustes/nuevo}" class="btn">+ Nuevo ajuste</a></div>
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+    <table>
+        <thead><tr><th>N.°</th><th>Fecha</th><th>Código</th><th>Producto</th><th class="num">Ajuste</th>
+            <th class="num">Stock que quedó</th><th>Registrado por</th><th>Motivo</th></tr></thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(ajustes)}"><td colspan="8">No hay ajustes registrados.</td></tr>
+        <th:block th:each="m : ${ajustes}">
+            <tr th:each="d : ${m.detalles}">
+                <td th:text="${m.idMovimiento}"></td>
+                <td th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${d.producto.codigo}"></td>
+                <td th:text="${d.producto.nombre}"></td>
+                <td class="num" th:text="${d.cantidad > 0} ? '+' + ${d.cantidad} : ${d.cantidad}"
+                    th:classappend="${d.cantidad < 0} ? 'rojo'"></td>
+                <td class="num" th:text="${d.stockResultante}"></td>
+                <td th:text="${m.usuario.username}"></td>
+                <td th:text="${m.observacion} ?: '-'"></td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+    <p class="nota">Un ajuste iguala el stock del sistema con el conteo físico. Queda registrado con su motivo y no se puede borrar.</p>
+</main>
+</body>
+</html>

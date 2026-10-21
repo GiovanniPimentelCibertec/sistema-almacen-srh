@@ -21,18 +21,25 @@
         <th:block sec:authorize="hasRole('JEFE')">
             <a th:href="@{/productos}">Productos</a>
             <a th:href="@{/marcas}">Marcas</a>
-            <a href="#" class="pronto" title="Fase 3">Entradas</a>
-            <a href="#" class="pronto" title="Fase 3">Salidas</a>
-            <a href="#" class="pronto" title="Fase 3">Ajustes</a>
-            <a href="#" class="pronto" title="Fase 4">Reportes</a>
+            <a th:href="@{/entradas}">Entradas</a>
+            <a th:href="@{/salidas}">Salidas</a>
+            <a th:href="@{/ajustes}">Ajustes</a>
+            <a th:href="@{/hospitales}">Hospitales</a>
+            <a th:href="@{/reportes}">Reportes</a>
+        </th:block>
+        <th:block sec:authorize="hasRole('SEDE')">
+            <a th:href="@{/sede}">Mi sede</a>
+            <a th:href="@{/sede/consumo}">Registrar consumo</a>
         </th:block>
         <th:block sec:authorize="hasRole('ASISTENTE')">
             <a th:href="@{/productos}">Productos</a>
-            <a href="#" class="pronto" title="Fase 3">Entradas</a>
-            <a href="#" class="pronto" title="Fase 3">Salidas</a>
+            <a th:href="@{/entradas}">Entradas</a>
+            <a th:href="@{/salidas}">Salidas</a>
         </th:block>
-        <a href="#" class="pronto" title="Fase 3">Kardex</a>
-        <a href="#" class="pronto" title="Fase 3">Stock</a>
+        <th:block sec:authorize="hasAnyRole('ADMINISTRADOR', 'JEFE', 'ASISTENTE')">
+            <a th:href="@{/kardex}">Kardex</a>
+            <a th:href="@{/stock}">Stock</a>
+        </th:block>
     </nav>
     <div class="usuario">
         <span sec:authentication="name">usuario</span>
@@ -43,7 +50,7 @@
     </div>
 </header>
 
-<!-- Mensaje de éxito después de guardar -->
+<!-- Mensaje de éxito o de error después de una acción -->
 <div th:fragment="mensajes">
     <div class="alerta ok" th:if="${mensaje}" th:text="${mensaje}"></div>
     <div class="alerta error" th:if="${error}" th:text="${error}"></div>

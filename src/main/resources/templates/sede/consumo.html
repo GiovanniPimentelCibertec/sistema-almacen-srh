@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registrar consumo')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido sede">
+    <h2>Registrar consumo</h2>
+    <p><span th:text="${sede.nombre}"></span> · Turno <strong th:text="${turno}">mañana</strong></p>
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+    <div class="alerta error" th:if="${errores}">
+        <ul><li th:each="e : ${errores}" th:text="${e}"></li></ul>
+    </div>
+
+    <div class="tarjeta aviso" th:if="${#lists.isEmpty(stock)}">
+        <p>El hospital no tiene productos disponibles. Confirme los envíos del almacén en <a th:href="@{/sede}">Mi sede</a>.</p>
+    </div>
+
+    <form th:action="@{/sede/consumo}" method="post" class="formulario" th:unless="${#lists.isEmpty(stock)}">
+        <label>¿Qué producto usó?
+            <select name="idProducto" id="producto" required>
+                <option value="">-- Seleccione --</option>
+                <option th:each="f : ${stock}" th:value="${f.producto.idProducto}"
+                        th:attr="data-stock=${f.stock}, data-unidad=${f.producto.unidad}"
+                        th:text="|${f.producto.nombre} (hay ${f.stock} ${f.producto.unidad})|"
+                        th:selected="${idProducto == f.producto.idProducto}"></option>
+            </select>
+        </label>
+        <label>¿Cuánto usó?
+            <input type="number" name="cantidad" id="cantidad" min="1" th:value="${cantidad}" inputmode="numeric" required>
+            <em id="queda">Elija el producto y escriba la cantidad.</em>
+        </label>
+        <div class="botones">
+            <button type="submit" class="btn grande">Guardar consumo</button>
+            <a th:href="@{/sede}" class="btn gris">Volver</a>
+        </div>
+    </form>
+    <p class="nota">El turno se toma de la hora actual: mañana de 6 a 14 h, tarde de 14 a 22 h y noche de 22 a 6 h.</p>
+</main>
+<script>
+    // Muestra cuánto quedará después de registrar el consumo
+    const producto = document.getElementById('producto');
+    const cantidad = document.getElementById('cantidad');
+    function actualizar() {
+        if (!producto) return;
+        const op = producto.selectedOptions[0];
+        const queda = document.getElementById('queda');
+        if (op && op.dataset.stock !== undefined && cantidad.value !== '') {
+            const resto = parseInt(op.dataset.stock) - parseInt(cantidad.value);
+            queda.textContent = resto < 0 ? 'No alcanza: solo hay ' + op.dataset.stock + ' ' + op.dataset.unidad
+                                          : 'Quedarán ' + resto + ' ' + op.dataset.unidad;
+            queda.classList.toggle('rojo', resto < 0);
+        }
+    }
+    if (producto) { producto.addEventListener('change', actualizar); cantidad.addEventListener('input', actualizar); actualizar(); }
+</script>
+</body>
+</html>
