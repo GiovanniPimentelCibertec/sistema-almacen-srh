@@ -3,7 +3,7 @@ package pe.srh.almacen.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
-/** Persona que usa el sistema. Rol: ADMINISTRADOR, JEFE o ASISTENTE. */
+/** Persona que usa el sistema. Rol: ADMINISTRADOR, JEFE, ASISTENTE o SEDE (encargado de un hospital). */
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -14,10 +14,12 @@ public class Usuario {
     private Integer idUsuario;
 
     @NotBlank(message = "Ingrese los nombres")
+    @Size(max = 100, message = "Máximo 100 caracteres")
     @Column(nullable = false, length = 100)
     private String nombres;
 
     @NotBlank(message = "Ingrese el usuario")
+    @Size(max = 50, message = "Máximo 50 caracteres")
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
@@ -30,6 +32,11 @@ public class Usuario {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    // Solo para el rol SEDE: el hospital del que se encarga
+    @ManyToOne
+    @JoinColumn(name = "id_sede")
+    private Sede sede;
 
     public Integer getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
@@ -48,4 +55,7 @@ public class Usuario {
 
     public Boolean getActivo() { return activo; }
     public void setActivo(Boolean activo) { this.activo = activo; }
+
+    public Sede getSede() { return sede; }
+    public void setSede(Sede sede) { this.sede = sede; }
 }

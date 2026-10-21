@@ -9,4 +9,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Optional<Usuario> findByUsername(String username);
     boolean existsByUsernameAndIdUsuarioNot(String username, Integer idUsuario);
     boolean existsByUsername(String username);
+
+    // Para no dejar el sistema sin administradores activos
+    long countByRolAndActivoTrue(String rol);
 }

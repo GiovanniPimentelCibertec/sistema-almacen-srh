@@ -1,37 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Formulario de Categoría')}"></head>
+<head th:replace="~{fragments/layout :: head('Categoría')}"></head>
 <body>
-
-    <div th:replace="~{fragments/layout :: menu}"></div>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2 th:text="${categoria.idCategoria == null} ? 'Nueva categoría' : 'Editar categoría'"></h2>
     <div th:replace="~{fragments/layout :: mensajes}"></div>
-
-    <main class="container" style="padding: 20px; max-width: 600px; margin: 0 auto;">
-        <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            
-            <h2 style="margin-top: 0; margin-bottom: 20px; color: #333;" 
-                th:text="${categoria.idCategoria == null} ? 'Registrar Nueva Categoría' : 'Editar Categoría'">
-                Formulario de Categoría
-            </h2>
-
-            <form th:action="@{/categorias/guardar}" th:object="${categoria}" method="post">
-                
-                <input type="hidden" th:field="*{idCategoria}" />
-
-                <div style="margin-bottom: 20px;">
-                    <label for="nombre" style="display: block; font-weight: bold; margin-bottom: 5px;">Nombre de la Categoría (*):</label>
-                    <input type="text" th:field="*{nombre}" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" 
-                           placeholder="Ej. EPP, Bolsas, Productos Químicos" required maxlength="80"/>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <a th:href="@{/categorias}" style="padding: 8px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Cancelar</a>
-                    <button type="submit" style="padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar Categoría</button>
-                </div>
-
-            </form>
+    <form th:action="@{/categorias/guardar}" th:object="${categoria}" method="post" class="formulario">
+        <input type="hidden" th:field="*{idCategoria}">
+        <label>Nombre
+            <input type="text" th:field="*{nombre}" placeholder="Ej.: EPP, Bolsas, Químicos" required maxlength="80">
+            <small class="error" th:errors="*{nombre}"></small>
+        </label>
+        <div class="botones">
+            <button type="submit" class="btn">Guardar</button>
+            <a th:href="@{/categorias}" class="btn gris">Cancelar</a>
         </div>
-    </main>
-
+    </form>
+</main>
 </body>
 </html>

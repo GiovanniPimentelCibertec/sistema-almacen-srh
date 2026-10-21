@@ -6,3 +6,6 @@ target/
 .settings/
 .vscode/
 HELP.md
+
+# Configuración local de cada PC (contraseña de MySQL): no se sube
+config/application.properties

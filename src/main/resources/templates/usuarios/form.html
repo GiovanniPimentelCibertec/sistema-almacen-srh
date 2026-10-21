@@ -26,8 +26,17 @@
                 <option value="ADMINISTRADOR">ADMINISTRADOR</option>
                 <option value="JEFE">JEFE</option>
                 <option value="ASISTENTE">ASISTENTE</option>
+                <option value="SEDE">SEDE (encargado de hospital)</option>
             </select>
             <small class="error" th:errors="*{rol}"></small>
+        </label>
+        <label>Hospital <em>(solo para el rol SEDE)</em>
+            <select name="sede">
+                <option value="">-- Ninguno --</option>
+                <option th:each="h : ${hospitales}" th:value="${h.idSede}" th:text="${h.nombre}"
+                        th:selected="${usuario.sede != null and usuario.sede.idSede == h.idSede}"></option>
+            </select>
+            <small class="error" th:errors="*{sede}"></small>
         </label>
         <div class="botones">
             <button type="submit" class="btn">Guardar</button>

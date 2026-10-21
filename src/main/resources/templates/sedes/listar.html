@@ -1,50 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Listado de Sedes')}"></head>
+<head th:replace="~{fragments/layout :: head('Sedes')}"></head>
 <body>
-
-    <div th:replace="~{fragments/layout :: menu}"></div>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <div class="titulo"><h2>Sedes</h2>
+        <a th:href="@{/sedes/nuevo}" class="btn">+ Nueva sede</a></div>
     <div th:replace="~{fragments/layout :: mensajes}"></div>
-
-    <main class="container" style="padding: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Listado de Sedes</h2>
-            <a th:href="@{/sedes/nuevo}" class="btn-nuevo" style="padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">+ Nueva Sede</a>
-        </div>
-
-        <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="padding: 10px;">ID</th>
-                    <th style="padding: 10px;">Nombre de Sede</th>
-                    <th style="padding: 10px;">Tipo</th>
-                    <th style="padding: 10px;">Estado</th>
-                    <th style="padding: 10px; text-align: center;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="sede : ${sedes}">
-                    <td style="padding: 10px;" th:text="${sede.idSede}">1</td>
-                    <td style="padding: 10px;" th:text="${sede.nombre}">Nombre</td>
-                    <td style="padding: 10px;" th:text="${sede.tipo}">Tipo</td>
-                    <td style="padding: 10px;">
-                        <span th:if="${sede.activo}" style="color: green; font-weight: bold;">Activo</span>
-                        <span th:unless="${sede.activo}" style="color: red; font-weight: bold;">Inactivo</span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">
-                        <a th:href="@{/sedes/editar/{id}(id=${sede.idSede})}" style="color: blue; margin-right: 10px;">Editar</a>
-                        <form th:action="@{/sedes/estado/{id}(id=${sede.idSede})}" method="post" style="display:inline;">
-                            <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;"
-                                    th:text="${sede.activo} ? 'Desactivar' : 'Activar'">Desactivar</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(sedes)}">
-                    <td colspan="5" style="padding: 20px; text-align: center; color: gray;">No hay sedes registradas.</td>
-                </tr>
-            </tbody>
-        </table>
-    </main>
-
+    <table>
+        <thead><tr><th>#</th><th>Sede</th><th>Tipo</th><th>Control de stock desde</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(sedes)}"><td colspan="6">No hay sedes registradas.</td></tr>
+        <tr th:each="sede : ${sedes}" th:classappend="${!sede.activo} ? 'inactivo'">
+            <td th:text="${sede.idSede}"></td>
+            <td th:text="${sede.nombre}"></td>
+            <td th:text="${sede.tipo == 'HOSPITAL'} ? 'Hospital' : 'Planta'"></td>
+            <td th:text="${sede.fechaInicioControl != null} ? ${#temporals.format(sede.fechaInicioControl, 'dd/MM/yyyy')} : '-'"></td>
+            <td><span class="estado" th:classappend="${sede.activo} ? 'on' : 'off'" th:text="${sede.activo} ? 'Activa' : 'Inactiva'"></span></td>
+            <td class="acciones">
+                <a th:href="@{/sedes/editar/{id}(id=${sede.idSede})}" class="btn-sm">Editar</a>
+                <form th:action="@{/sedes/estado/{id}(id=${sede.idSede})}" method="post">
+                    <button class="btn-sm gris" th:text="${sede.activo} ? 'Desactivar' : 'Activar'"></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="nota">Las sedes no se borran porque tienen movimientos: se desactivan. Un hospital nuevo empieza con stock 0.</p>
+</main>
 </body>
 </html>

@@ -21,7 +21,7 @@
             <td class="num" th:text="${p.stock}"></td>
             <td class="num" th:text="${p.stockMinimo}"></td>
             <td><span class="estado" th:classappend="${p.stock <= p.stockMinimo} ? 'off' : 'on'"
-                      th:text="${p.stock <= p.stockMinimo} ? 'Reponer' : 'OK'"></span></td>
+                      th:text="${p.stock <= p.stockMinimo} ? 'Reponer' : 'Normal'"></span></td>
             <td class="acciones" sec:authorize="hasRole('JEFE')">
                 <a th:href="@{/productos/editar/{id}(id=${p.idProducto})}" class="btn-sm">Editar</a>
                 <form th:action="@{/productos/estado/{id}(id=${p.idProducto})}" method="post">
@@ -31,7 +31,10 @@
         </tr>
         </tbody>
     </table>
-    <p class="nota">El stock solo cambia con entradas, salidas y ajustes. El mínimo se calcula con el consumo de los últimos 90 días.</p>
+    <p class="nota">El stock solo cambia con entradas, salidas y ajustes. Stock mínimo = consumo promedio diario × días de reposición,
+        redondeado hacia arriba. El promedio diario son las salidas de los últimos 90 días divididas entre los días de historia:
+        los días desde la primera salida del producto, con un tope de 90 (y como mínimo 1). Se recalcula con cada salida;
+        si el producto aún no tiene salidas, se usa su mínimo inicial.</p>
 </main>
 </body>
 </html>
