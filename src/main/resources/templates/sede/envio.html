@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Confirmar envío')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido sede">
+    <h2 th:text="|Envío N.° ${envio.idMovimiento}|">Envío</h2>
+    <p><span th:text="${sede.nombre}"></span> · enviado el <span th:text="${#temporals.format(envio.fecha, 'dd/MM/yyyy HH:mm')}"></span></p>
+
+    <div class="alerta error" th:if="${errores}">
+        <ul><li th:each="e : ${errores}" th:text="${e}"></li></ul>
+    </div>
+
+    <form th:action="@{/sede/envios/{id}/diferente(id=${envio.idMovimiento})}" method="post" class="formulario ancho">
+        <p>Indique cuántas unidades llegaron realmente de cada producto.</p>
+        <table class="compacta">
+            <thead><tr><th>Producto</th><th class="num">Enviado</th><th class="num">Llegó</th></tr></thead>
+            <tbody>
+            <tr th:each="d : ${envio.detalles}">
+                <td th:text="${d.producto.nombre}"></td>
+                <td class="num" th:text="|${d.cantidad} ${d.producto.unidad}|"></td>
+                <td class="num"><input type="number" min="0" th:max="${d.cantidad}" class="corto" inputmode="numeric"
+                                       th:name="|llego_${d.idDetalle}|"
+                                       th:value="${param['llego_' + d.idDetalle] != null ? param['llego_' + d.idDetalle] : d.cantidad}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="nota">Lo que no llegó no se suma al stock del hospital y se avisa al jefe de logística para que lo revise.</p>
+        <div class="botones">
+            <button type="submit" class="btn">Guardar lo que llegó</button>
+            <a th:href="@{/sede}" class="btn gris">Volver</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
