@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reportes')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2>Reportes en PDF</h2>
+    <div class="reportes">
+        <div class="tarjeta reporte">
+            <h3>Despachos por sede y mes</h3>
+            <p>Lo que el almacén central despachó a cada sede en el mes elegido, por producto: en cuántas salidas fue,
+                cuánto se pidió, cuánto se despachó y cuánto faltó. No es el consumo registrado por los hospitales.</p>
+            <form th:action="@{/reportes/consumo}" method="get" target="_blank" class="filtros">
+                <label>Mes <input type="month" name="mes" th:value="${mesActual}" required></label>
+                <button type="submit" class="btn">Ver PDF</button>
+                <button type="submit" class="btn gris" name="descargar" value="true">Descargar</button>
+            </form>
+        </div>
+        <div class="tarjeta reporte">
+            <h3>Productos por reponer</h3>
+            <p>Productos activos cuyo stock llegó a su mínimo o está por debajo, con la cantidad sugerida a comprar.</p>
+            <div class="filtros">
+                <a th:href="@{/reportes/reponer}" target="_blank" class="btn">Ver PDF</a>
+                <a th:href="@{/reportes/reponer(descargar=true)}" class="btn gris">Descargar</a>
+            </div>
+        </div>
+    </div>
+    <p class="nota">Los reportes se generan con JasperReports a partir de los datos actuales de la base de datos.</p>
+</main>
+</body>
+</html>

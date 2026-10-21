@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Stock actual')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2>Stock actual</h2>
+
+    <form th:action="@{/stock}" method="get" class="filtros">
+        <label>Categoría
+            <select name="categoria">
+                <option value="">Todas</option>
+                <option th:each="c : ${categorias}" th:value="${c.idCategoria}" th:text="${c.nombre}"
+                        th:selected="${idCategoria == c.idCategoria}"></option>
+            </select>
+        </label>
+        <label>Situación
+            <select name="situacion">
+                <option value="TODOS" th:selected="${situacion == 'TODOS'}">Todas</option>
+                <option value="REPONER" th:selected="${situacion == 'REPONER'}">Por reponer</option>
+                <option value="NORMAL" th:selected="${situacion == 'NORMAL'}">Normal</option>
+            </select>
+        </label>
+        <button type="submit" class="btn">Filtrar</button>
+    </form>
+
+    <p th:unless="${#lists.isEmpty(productos)}">
+        <strong th:text="${#lists.size(productos)}">0</strong> <th:block th:text="${#lists.size(productos) == 1} ? 'producto' : 'productos'">productos</th:block>,
+        <strong class="rojo" th:text="${totalReponer}">0</strong> por reponer.
+    </p>
+    <div class="alerta ok" th:if="${#lists.isEmpty(productos)}">Ningún producto cumple el filtro elegido.</div>
+    <table th:unless="${#lists.isEmpty(productos)}">
+        <thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Marca</th><th>Unidad</th>
+            <th class="num">Stock</th><th class="num">Mínimo</th><th>Situación</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${productos}" th:classappend="${p.stock <= p.stockMinimo} ? 'reponer'">
+            <td th:text="${p.codigo}"></td>
+            <td th:text="${p.nombre}"></td>
+            <td th:text="${p.categoria.nombre}"></td>
+            <td th:text="${p.marca.nombre}"></td>
+            <td th:text="${p.unidad}"></td>
+            <td class="num" th:text="${p.stock}"></td>
+            <td class="num" th:text="${p.stockMinimo}"></td>
+            <td><span class="estado" th:classappend="${p.stock <= p.stockMinimo} ? 'off' : 'on'"
+                      th:text="${p.stock <= p.stockMinimo} ? 'Reponer' : 'Normal'"></span></td>
+            <td><a th:href="@{/kardex(producto=${p.idProducto})}" class="btn-sm">Kardex</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="nota">El mínimo se calcula con las salidas de los últimos 90 días (divididas entre los días de historia del producto, hasta 90) y los días de reposición de cada producto.</p>
+</main>
+</body>
+</html>

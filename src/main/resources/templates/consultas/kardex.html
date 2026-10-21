@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kardex')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: menu}"></header>
+<main class="contenido">
+    <h2>Kardex por producto</h2>
+
+    <form th:action="@{/kardex}" method="get" class="filtros">
+        <label>Producto
+            <select name="producto" required>
+                <option value="">-- Seleccione --</option>
+                <option th:each="p : ${productos}" th:value="${p.idProducto}" th:text="|${p.codigo} - ${p.nombre}|"
+                        th:selected="${idProducto == p.idProducto}"></option>
+            </select>
+        </label>
+        <label>Desde <input type="date" name="desde" th:value="${desde}"></label>
+        <label>Hasta <input type="date" name="hasta" th:value="${hasta}"></label>
+        <button type="submit" class="btn">Consultar</button>
+    </form>
+
+    <div class="alerta error" th:if="${error}" th:text="${error}"></div>
+
+    <th:block th:if="${producto != null}">
+        <div class="tarjetas tres">
+            <div class="tarjeta"><span th:text="${producto.stock}">0</span>Stock actual (<th:block th:text="${producto.unidad}"/>)</div>
+            <div class="tarjeta"><span th:text="${totalEntradas}">0</span>Ingresó en el periodo</div>
+            <div class="tarjeta"><span th:text="${totalSalidas}">0</span>Salió en el periodo</div>
+        </div>
+        <h3 th:text="|${producto.codigo} - ${producto.nombre}|">Producto</h3>
+        <div class="alerta ok" th:if="${#lists.isEmpty(filas)}">No hay movimientos de este producto entre las fechas elegidas.</div>
+        <table th:unless="${#lists.isEmpty(filas)}">
+            <thead><tr><th>Fecha</th><th>Tipo</th><th>N.°</th><th>Sede</th><th>Registrado por</th>
+                <th class="num">Entrada</th><th class="num">Salida</th><th class="num">Saldo</th><th>Observación</th></tr></thead>
+            <tbody>
+            <tr class="saldo-inicial"><td colspan="7">Saldo inicial del periodo</td><td class="num" th:text="${saldoInicial}"></td><td></td></tr>
+            <tr th:each="d : ${filas}" th:with="m=${d.movimiento}, sale=${m.tipo == 'SALIDA' or d.cantidad < 0}">
+                <td th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                <td><span class="etiqueta" th:classappend="${m.tipo}" th:text="${m.tipo}"></span></td>
+                <td th:text="${m.idMovimiento}"></td>
+                <td th:text="${m.sede != null ? m.sede.nombre : '-'}"></td>
+                <td th:text="${m.usuario.username}"></td>
+                <td class="num" th:text="${sale} ? '' : ${d.cantidad}"></td>
+                <td class="num" th:text="${sale} ? ${d.cantidad < 0 ? -d.cantidad : d.cantidad} : ''"></td>
+                <td class="num"><strong th:text="${d.stockResultante}"></strong></td>
+                <td th:text="${m.observacion} ?: '-'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </th:block>
+    <p class="nota" th:if="${producto == null}">Elija un producto y un rango de fechas. Si no indica fechas, se muestra el año en curso.</p>
+</main>
+</body>
+</html>
