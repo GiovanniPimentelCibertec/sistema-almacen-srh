@@ -14,14 +14,17 @@ public class Producto {
     private Integer idProducto;
 
     @NotBlank(message = "Ingrese el código")
+    @Size(max = 20, message = "Máximo 20 caracteres")
     @Column(nullable = false, unique = true, length = 20)
     private String codigo;
 
     @NotBlank(message = "Ingrese el nombre")
+    @Size(max = 120, message = "Máximo 120 caracteres")
     @Column(nullable = false, length = 120)
     private String nombre;
 
     @NotBlank(message = "Ingrese la unidad")
+    @Size(max = 20, message = "Máximo 20 caracteres")
     @Column(nullable = false, length = 20)
     private String unidad;
 

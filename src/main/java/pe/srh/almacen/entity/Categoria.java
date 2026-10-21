@@ -14,6 +14,7 @@ public class Categoria {
     private Integer idCategoria;
 
     @NotBlank(message = "Ingrese el nombre")
+    @Size(max = 80, message = "Máximo 80 caracteres")
     @Column(nullable = false, unique = true, length = 80)
     private String nombre;
 

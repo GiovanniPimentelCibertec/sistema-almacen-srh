@@ -1,56 +1,79 @@
 package pe.srh.almacen.controller;
 
-import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.validation.Valid;
 import pe.srh.almacen.entity.Marca;
 import pe.srh.almacen.repository.MarcaRepository;
 
-/** Mantenimiento de marcas (rol JEFE). */
 @Controller
 @RequestMapping("/marcas")
 public class MarcaController {
 
-    private final MarcaRepository repository;
+    @Autowired
+    private MarcaRepository marcaRepository;
 
-    public MarcaController(MarcaRepository repository) {
-        this.repository = repository;
-    }
-
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("lista", repository.findAllByOrderByNombreAsc());
-        return "marcas/lista";
+    @GetMapping({"", "/", "/listar"})
+    public String listarMarcas(Model model) {
+        model.addAttribute("marcas", marcaRepository.findAllByOrderByNombreAsc());
+        return "marcas/listar";
     }
 
     @GetMapping("/nuevo")
-    public String nuevo(Model model) {
+    public String nuevaMarca(Model model) {
         model.addAttribute("marca", new Marca());
-        return "marcas/form";
-    }
-
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Integer id, Model model) {
-        model.addAttribute("marca", repository.findById(id).orElseThrow());
-        return "marcas/form";
+        return "marcas/formulario";
     }
 
     @PostMapping("/guardar")
-    public String guardar(@Valid @ModelAttribute("marca") Marca marca, BindingResult result, RedirectAttributes flash) {
+    public String guardarMarca(@Valid @ModelAttribute("marca") Marca marca, BindingResult result,
+                               Model model, RedirectAttributes flash) {
         if (result.hasErrors()) {
-            return "marcas/form";
+            return "marcas/formulario";
+        }
+        if (marca.getIdMarca() != null && !marcaRepository.existsById(marca.getIdMarca())) {
+            flash.addFlashAttribute("error", "La marca no existe.");
+            return "redirect:/marcas/listar";
         }
         try {
-            repository.save(marca);
+            marcaRepository.save(marca);
         } catch (DataIntegrityViolationException e) {
-            result.rejectValue("nombre", "repetido", "Ese nombre ya está registrado");
-            return "marcas/form";
+            model.addAttribute("error", "Ya existe una marca con ese nombre");
+            return "marcas/formulario";
         }
         flash.addFlashAttribute("mensaje", "Marca guardada correctamente");
-        return "redirect:/marcas";
+        return "redirect:/marcas/listar";
+    }
+
+    @GetMapping("/editar/{id}")
+    public String editarMarca(@PathVariable("id") Integer id, Model model) {
+        Marca marca = marcaRepository.findById(id).orElse(null);
+        if (marca == null) {
+            return "redirect:/marcas/listar";
+        }
+        model.addAttribute("marca", marca);
+        return "marcas/formulario";
+    }
+
+    @PostMapping("/eliminar/{id}")
+    public String eliminarMarca(@PathVariable("id") Integer id, RedirectAttributes flash) {
+        if (!marcaRepository.existsById(id)) {
+            flash.addFlashAttribute("error", "La marca no existe.");
+            return "redirect:/marcas/listar";
+        }
+        try {
+            marcaRepository.deleteById(id);
+            flash.addFlashAttribute("mensaje", "Marca eliminada");
+        } catch (DataIntegrityViolationException e) {
+            // Si algún producto usa la marca, la base de datos no deja borrarla
+            flash.addFlashAttribute("error", "No se puede eliminar la marca porque está asociada a productos.");
+        }
+        return "redirect:/marcas/listar";
     }
 }

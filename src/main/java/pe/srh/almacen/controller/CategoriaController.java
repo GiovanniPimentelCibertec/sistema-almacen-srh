@@ -35,6 +35,10 @@ public class CategoriaController {
         if (result.hasErrors()) {
             return "categorias/formulario";
         }
+        if (categoria.getIdCategoria() != null && categoriaService.buscarPorId(categoria.getIdCategoria()).isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "La categoría no existe.");
+            return "redirect:/categorias";
+        }
         try {
             categoriaService.guardar(categoria);
         } catch (DataIntegrityViolationException e) {
@@ -49,15 +53,20 @@ public class CategoriaController {
     public String editarCategoriaForm(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         Categoria categoria = categoriaService.buscarPorId(id).orElse(null);
         if (categoria == null) {
-            redirectAttributes.addFlashAttribute("mensaje", "La categoría no existe.");
+            redirectAttributes.addFlashAttribute("error", "La categoría no existe.");
             return "redirect:/categorias";
         }
         model.addAttribute("categoria", categoria);
         return "categorias/formulario";
     }
 
-    @GetMapping("/eliminar/{id}")
+    // Por POST para que lo proteja el token CSRF; la base de datos no deja borrar una categoría con productos
+    @PostMapping("/eliminar/{id}")
     public String eliminarCategoria(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        if (categoriaService.buscarPorId(id).isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "La categoría no existe.");
+            return "redirect:/categorias";
+        }
         try {
             categoriaService.eliminar(id);
             redirectAttributes.addFlashAttribute("mensaje", "¡Categoría eliminada con éxito!");

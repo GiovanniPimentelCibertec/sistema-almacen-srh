@@ -26,8 +26,9 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         return User.withUsername(u.getUsername())
                 .password(u.getPassword())
-                .roles(u.getRol())           // ADMINISTRADOR, JEFE o ASISTENTE
-                .disabled(!u.getActivo())    // un usuario desactivado no puede entrar
+                .roles(u.getRol())           // ADMINISTRADOR, JEFE, ASISTENTE o SEDE
+                // No entra un usuario desactivado ni el encargado de un hospital desactivado
+                .disabled(!u.getActivo() || (u.getSede() != null && !u.getSede().getActivo()))
                 .build();
     }
 }

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Página no disponible | Almacén SRH</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body class="fondo-login">
+<!-- Página propia para cualquier error (dirección inexistente, dato no válido en la dirección, etc.) -->
+<div class="caja-login">
+    <h1>📦 Almacén SRH</h1>
+    <p class="sub" th:switch="${status}">
+        <span th:case="404">La página que busca no existe.</span>
+        <span th:case="400">La dirección tiene un dato que no es válido.</span>
+        <span th:case="405">Esa acción no se puede hacer desde aquí.</span>
+        <span th:case="*">Ocurrió un problema al procesar la solicitud.</span>
+    </p>
+    <p class="nota" th:text="|Código ${status}|">Código</p>
+    <a th:href="@{/}" class="btn">Volver al inicio</a>
+</div>
+</body>
+</html>
